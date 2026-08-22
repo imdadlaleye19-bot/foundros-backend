@@ -796,7 +796,7 @@ function renderChart(){
 function renderHistoryList(){
   const listEl = document.getElementById('historyList');
   const h = [...history_].reverse();
-  if(h.length===0){ listEl.innerHTML='<div class="chart-empty">Aucune update archivée pour l\\'instant.</div>'; return; }
+  if(h.length===0){ listEl.innerHTML='<div class="chart-empty">Aucune update archivée pour l\'instant.</div>'; return; }
   listEl.innerHTML = h.map(entry=>{
     const runway = entry.burn>0 ? (entry.cash/entry.burn).toFixed(1) : '—';
     return `<div class="history-item" id="hist-${entry.id}">
@@ -1107,7 +1107,7 @@ Analyse ces retours et rédige en français un court résumé structuré (5-6 ph
   }catch(e){
     document.getElementById('feedbackAnalysis').innerHTML = `<div class="analysis-box"><h4>Erreur</h4><p>L'analyse a échoué, réessaie.</p></div>`;
   }
-  btn.disabled = false; btn.textContent = '✦ Analyser les tendances avec l\\'IA';
+  btn.disabled = false; btn.textContent = '✦ Analyser les tendances avec l\'IA';
 }
 function renderVoC(){
   const listEl = document.getElementById('feedbackList');
