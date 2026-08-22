@@ -1,0 +1,12 @@
+{
+  "name": "foundros-backend",
+  "version": "1.0.0",
+  "description": "FoundrOS — backend réel (Node.js pur, zéro dépendance externe)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
