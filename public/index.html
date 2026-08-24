@@ -3,306 +3,234 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FoundrOS — Le cockpit du fondateur</title>
+<title>Survéo — Surveillez. Comprenez. Décidez.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-  :root{
-    --bg:#0B0E14; --surface:#141922; --surface-2:#1A2029; --border:#242C38;
-    --text:#ECEEF2; --muted:#8891A0; --accent:#2DD4BF; --accent-soft:#2DD4BF1f;
-    --accent-strong:#14B8A6; --warn:#FFB020;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:radial-gradient(ellipse 1100px 600px at 50% -10%, #2DD4BF14, transparent), var(--bg);
-    color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden;
-  }
-  .mono{font-family:'JetBrains Mono',monospace;}
-  h1,h2,h3{font-family:'Space Grotesk',sans-serif;}
-  a{color:inherit;text-decoration:none;}
+  html{scroll-behavior:smooth;} body{overflow-x:hidden;}
   .wrap{max-width:640px;margin:0 auto;padding:0 20px;}
-
-  /* Nav */
-  nav{
-    position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
-    padding:16px 20px;background:rgba(11,14,20,0.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);
-  }
-  .brand{display:flex;align-items:center;gap:9px;}
-  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0EA5E9);
-    display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:13px;color:#062521;}
-  .brand-name{font-family:'Space Grotesk';font-weight:700;font-size:1rem;}
+  nav.landing{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;background:rgba(11,14,20,0.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
   .nav-right{display:flex;align-items:center;gap:10px;}
   .lang-toggle{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px;}
-  .lang-btn{border:none;background:none;color:var(--muted);font-size:0.72rem;font-weight:700;padding:5px 10px;
-    border-radius:16px;cursor:pointer;font-family:'Inter';}
+  .lang-btn{border:none;background:none;color:var(--muted);font-size:0.72rem;font-weight:700;padding:5px 10px;border-radius:16px;cursor:pointer;font-family:'Inter';}
   .lang-btn.active{background:var(--accent);color:#062521;}
-  .nav-cta{font-size:0.78rem;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:9px;
-    padding:7px 12px;white-space:nowrap;}
+  .nav-cta{font-size:0.78rem;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:9px;padding:7px 12px;white-space:nowrap;}
 
-  /* Hero */
   .hero{padding:52px 0 40px;text-align:center;}
   .eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;color:var(--accent);
-    background:var(--accent-soft);border:1px solid #2DD4BF33;padding:6px 14px;border-radius:20px;margin-bottom:20px;
-    text-transform:uppercase;letter-spacing:0.04em;}
-  .hero h1{font-size:2.15rem;line-height:1.15;letter-spacing:-0.02em;margin-bottom:16px;}
+    background:var(--accent-soft);border:1px solid #2DD4BF33;padding:6px 14px;border-radius:20px;margin-bottom:20px;text-transform:uppercase;letter-spacing:0.04em;}
+  .hero h1{font-size:2.15rem;line-height:1.15;letter-spacing:-0.02em;margin-bottom:10px;font-family:'Space Grotesk';}
   .hero h1 span{color:var(--accent);}
+  .signature{font-family:'JetBrains Mono';font-size:0.85rem;color:var(--muted);letter-spacing:0.02em;margin-bottom:18px;}
   .hero p{font-size:1rem;color:var(--muted);line-height:1.6;margin-bottom:28px;padding:0 4px;}
   .cta-row{display:flex;flex-direction:column;gap:10px;max-width:320px;margin:0 auto;}
-  .btn-primary{background:var(--accent);color:#062521;font-weight:700;font-size:0.92rem;padding:15px;border-radius:12px;
-    display:block;box-shadow:0 8px 24px -8px #2DD4BF66;}
+  .btn-primary{background:var(--accent);color:#062521;font-weight:700;font-size:0.92rem;padding:15px;border-radius:12px;display:block;box-shadow:0 8px 24px -8px #2DD4BF66;}
   .btn-secondary{border:1px solid var(--border);color:var(--text);font-weight:600;font-size:0.88rem;padding:14px;border-radius:12px;}
 
-  /* Live preview (signature element) */
-  .preview-card{
-    background:linear-gradient(160deg,var(--surface),var(--surface-2));border:1px solid var(--border);
-    border-radius:20px;padding:22px 20px;margin:40px auto 0;max-width:400px;text-align:left;
-    box-shadow:0 30px 60px -30px #000a;
-  }
+  .preview-card{background:linear-gradient(160deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:20px;padding:22px 20px;margin:40px auto 0;max-width:400px;text-align:left;box-shadow:0 30px 60px -30px #000a;}
   .preview-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
   .preview-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
   .preview-value{font-family:'JetBrains Mono';font-size:1.8rem;font-weight:600;margin-top:4px;}
-  .preview-badge{font-size:0.64rem;font-weight:700;background:var(--accent-soft);color:var(--accent);
-    padding:4px 9px;border-radius:20px;text-transform:uppercase;}
+  .preview-badge{font-size:0.64rem;font-weight:700;background:var(--accent-soft);color:var(--accent);padding:4px 9px;border-radius:20px;text-transform:uppercase;}
   .preview-gauge-track{height:6px;background:var(--surface-2);border-radius:6px;overflow:hidden;margin-bottom:18px;}
-  .preview-gauge-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#0EA5E9);border-radius:6px;
-    transition:width 1.6s cubic-bezier(.4,0,.2,1);}
+  .preview-gauge-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#0EA5E9);border-radius:6px;transition:width 1.6s cubic-bezier(.4,0,.2,1);}
   svg.preview-chart{width:100%;height:80px;display:block;}
 
-  /* Sections */
   section{padding:44px 0;}
   .section-eyebrow{font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
-  .section-title{font-size:1.5rem;line-height:1.25;margin-bottom:14px;letter-spacing:-0.01em;}
+  .section-title2{font-size:1.5rem;line-height:1.25;margin-bottom:14px;letter-spacing:-0.01em;font-family:'Space Grotesk';}
   .section-sub{color:var(--muted);font-size:0.92rem;line-height:1.6;margin-bottom:28px;}
 
+  .ssce-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:24px;}
+  .ssce-step{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:0.8rem;font-weight:600;}
+  .ssce-arrow{color:var(--accent);font-size:0.9rem;}
+
   .module-grid{display:flex;flex-direction:column;gap:12px;}
-  .module-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;
-    display:flex;gap:14px;align-items:flex-start;}
-  .module-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);
-    display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+  .module-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;display:flex;gap:14px;align-items:flex-start;}
+  .module-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
   .module-name{font-weight:700;font-size:0.95rem;margin-bottom:4px;}
   .module-desc{font-size:0.84rem;color:var(--muted);line-height:1.5;}
 
   .steps{display:flex;flex-direction:column;gap:0;}
   .step{display:flex;gap:16px;padding-bottom:28px;position:relative;}
   .step:not(:last-child)::before{content:'';position:absolute;left:17px;top:38px;bottom:0;width:1px;background:var(--border);}
-  .step-num{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--accent);
-    color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';
-    font-weight:600;font-size:0.85rem;flex-shrink:0;}
+  .step-num{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:600;font-size:0.85rem;flex-shrink:0;}
   .step-title{font-weight:700;font-size:0.92rem;margin-bottom:4px;}
   .step-desc{font-size:0.84rem;color:var(--muted);line-height:1.5;}
 
-  .quote-block{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 14px 14px 0;
-    padding:18px 20px;margin-bottom:16px;}
-  .quote-block p{font-size:0.86rem;color:#D5D9E3;line-height:1.6;font-style:italic;}
-
   .final-cta{text-align:center;padding:48px 0 60px;}
-  .final-cta h2{font-size:1.5rem;margin-bottom:12px;}
+  .final-cta h2{font-size:1.5rem;margin-bottom:12px;font-family:'Space Grotesk';}
   .final-cta p{color:var(--muted);font-size:0.9rem;margin-bottom:26px;}
-
   footer{border-top:1px solid var(--border);padding:24px 0 40px;text-align:center;}
   footer p{font-size:0.74rem;color:var(--muted);}
-
   [data-i18n]{transition:opacity .15s ease;}
+  @media (min-width:900px){ .wrap{max-width:760px;} }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="brand"><div class="brand-mark">F</div><div class="brand-name">FoundrOS</div></div>
+<nav class="landing">
+  <div class="brand"><div class="brand-mark">S</div><div class="brand-name">Survéo</div></div>
   <div class="nav-right">
     <div class="lang-toggle">
       <button class="lang-btn active" onclick="setLang('fr')" id="langFrBtn">FR</button>
       <button class="lang-btn" onclick="setLang('en')" id="langEnBtn">EN</button>
     </div>
-    <a href="app.html" class="nav-cta" data-i18n="nav_cta">Se connecter</a>
+    <a href="login.html" class="nav-cta" data-i18n="nav_cta">Se connecter</a>
   </div>
 </nav>
 
 <div class="wrap">
 
   <div class="hero">
-    <div class="eyebrow" data-i18n="eyebrow">✦ Pour fondateurs pré-seed &amp; seed</div>
-    <h1 data-i18n="hero_title">Le cockpit qui pilote <span>ta startup</span></h1>
-    <p data-i18n="hero_sub">Finance, updates investisseurs, contrats, veille concurrentielle et retours clients — centralisés en un seul endroit, avec l'IA qui fait la mise en forme à ta place.</p>
+    <div class="eyebrow" data-i18n="eyebrow">✦ Pour dirigeants &amp; fondateurs</div>
+    <h1 data-i18n="hero_title">Le système intelligent qui <span>surveille votre entreprise</span></h1>
+    <div class="signature" data-i18n="signature">Surveillez. Comprenez. Décidez.</div>
+    <p data-i18n="hero_sub">Survéo ne se contente pas de montrer vos chiffres. Il surveille votre trésorerie, vos contrats, vos concurrents et vos clients — et vous dit ce qui compte, au bon moment.</p>
     <div class="cta-row">
-      <a href="app.html" class="btn-primary" data-i18n="cta_primary">Créer mon compte gratuitement</a>
-      <a href="app.html" class="btn-secondary" data-i18n="cta_secondary">J'ai déjà un compte</a>
+      <a href="login.html" class="btn-primary" data-i18n="cta_primary">Commencer gratuitement</a>
+      <a href="#ssce" class="btn-secondary" data-i18n="cta_secondary">Découvrir Survéo</a>
     </div>
 
     <div class="preview-card">
       <div class="preview-top">
-        <div>
-          <div class="preview-label" data-i18n="preview_label">Runway restant</div>
-          <div class="preview-value mono">14.2 <span style="font-size:0.9rem;color:var(--muted)">mois</span></div>
-        </div>
+        <div><div class="preview-label" data-i18n="preview_label">Runway restant</div>
+          <div class="preview-value mono">14.2 <span style="font-size:0.9rem;color:var(--muted)">mois</span></div></div>
         <div class="preview-badge" data-i18n="preview_badge">Sain</div>
       </div>
       <div class="preview-gauge-track"><div class="preview-gauge-fill" id="previewGauge"></div></div>
       <svg class="preview-chart" viewBox="0 0 400 80" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.35"/>
-            <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
+        <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.35"/><stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
+        </linearGradient></defs>
         <path id="previewArea" d="" fill="url(#pg)" stroke="none" opacity="0"/>
-        <path id="previewLine" d="" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          stroke-dasharray="500" stroke-dashoffset="500"/>
+        <path id="previewLine" d="" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="500" stroke-dashoffset="500"/>
       </svg>
     </div>
   </div>
 
-  <section>
-    <div class="section-eyebrow" data-i18n="problem_eyebrow">Le problème</div>
-    <h2 class="section-title" data-i18n="problem_title">Ton reporting prend des heures — alors tu arrêtes de le faire</h2>
-    <p class="section-sub" data-i18n="problem_sub">Les fondateurs qui informent régulièrement leurs investisseurs lèvent plus vite leur prochain tour. Mais entre gérer l'équipe, les ventes et le produit, sortir les chiffres du tableur et tout mettre en forme passe toujours en dernier.</p>
-    <div class="quote-block">
-      <p data-i18n="problem_quote">"Je voulais juste savoir où j'en étais — trésorerie, contrats, concurrents, retours clients — sans ouvrir 5 fichiers différents à chaque fois."</p>
+  <section id="ssce">
+    <div class="section-eyebrow" data-i18n="ssce_eyebrow">La technologie derrière Survéo</div>
+    <h2 class="section-title2" data-i18n="ssce_title">SSCE™ — Système de Surveillance des Chiffres de l'Entreprise</h2>
+    <p class="section-sub" data-i18n="ssce_sub">Un moteur simple qui structure ce que vous lui donnez : vos chiffres, vos contrats, vos concurrents, vos retours clients — pour en tirer un score de santé réel et des alertes basées sur vos données, jamais inventées.</p>
+    <div class="ssce-flow">
+      <div class="ssce-step" data-i18n="ssce_1">Surveiller</div><span class="ssce-arrow">→</span>
+      <div class="ssce-step" data-i18n="ssce_2">Analyser</div><span class="ssce-arrow">→</span>
+      <div class="ssce-step" data-i18n="ssce_3">Anticiper</div><span class="ssce-arrow">→</span>
+      <div class="ssce-step" data-i18n="ssce_4">Agir</div>
     </div>
   </section>
 
   <section>
     <div class="section-eyebrow" data-i18n="modules_eyebrow">5 modules, un seul cockpit</div>
-    <h2 class="section-title" data-i18n="modules_title">Tout ce qu'un fondateur doit suivre</h2>
+    <h2 class="section-title2" data-i18n="modules_title">Tout ce qu'un dirigeant doit suivre</h2>
     <div class="module-grid">
-      <div class="module-card">
-        <div class="module-icon">F</div>
+      <div class="module-card"><div class="module-icon">S</div>
         <div><div class="module-name" data-i18n="mod1_name">Investor Hub</div>
-          <div class="module-desc" data-i18n="mod1_desc">Génère une update investisseur propre à partir de tes chiffres et de notes brutes — l'IA rédige, tu valides.</div></div>
-      </div>
-      <div class="module-card">
-        <div class="module-icon">€</div>
+          <div class="module-desc" data-i18n="mod1_desc">Génère une update investisseur propre à partir de tes chiffres et de notes brutes — l'IA rédige, tu valides.</div></div></div>
+      <div class="module-card"><div class="module-icon">€</div>
         <div><div class="module-name" data-i18n="mod2_name">Finance</div>
-          <div class="module-desc" data-i18n="mod2_desc">Suis tes dépenses mensuelles et vois ton runway se projeter automatiquement.</div></div>
-      </div>
-      <div class="module-card">
-        <div class="module-icon">§</div>
+          <div class="module-desc" data-i18n="mod2_desc">Suis tes dépenses mensuelles et vois ton runway se projeter automatiquement.</div></div></div>
+      <div class="module-card"><div class="module-icon">§</div>
         <div><div class="module-name" data-i18n="mod3_name">Legal</div>
-          <div class="module-desc" data-i18n="mod3_desc">Colle un contrat, l'IA en extrait les dates clés et t'alerte avant chaque préavis.</div></div>
-      </div>
-      <div class="module-card">
-        <div class="module-icon">◎</div>
+          <div class="module-desc" data-i18n="mod3_desc">Colle un contrat, l'IA en extrait les dates clés et t'alerte avant chaque préavis.</div></div></div>
+      <div class="module-card"><div class="module-icon">◎</div>
         <div><div class="module-name" data-i18n="mod4_name">Market Watch</div>
-          <div class="module-desc" data-i18n="mod4_desc">Un journal centralisé pour noter ce que font tes concurrents, au lieu de captures d'écran éparpillées.</div></div>
-      </div>
-      <div class="module-card">
-        <div class="module-icon">✉</div>
-        <div><div class="module-name" data-i18n="mod5_name">Voice of Customer</div>
-          <div class="module-desc" data-i18n="mod5_desc">Centralise les retours clients et laisse l'IA repérer les tendances qui reviennent.</div></div>
-      </div>
+          <div class="module-desc" data-i18n="mod4_desc">Un journal centralisé pour noter ce que font tes concurrents.</div></div></div>
+      <div class="module-card"><div class="module-icon">✉</div>
+        <div><div class="module-name" data-i18n="mod5_name">Customer Voice</div>
+          <div class="module-desc" data-i18n="mod5_desc">Centralise les retours clients et laisse l'IA repérer les tendances qui reviennent.</div></div></div>
     </div>
   </section>
 
   <section>
     <div class="section-eyebrow" data-i18n="how_eyebrow">Comment ça marche</div>
-    <h2 class="section-title" data-i18n="how_title">Trois étapes, pas plus</h2>
+    <h2 class="section-title2" data-i18n="how_title">Trois étapes, pas plus</h2>
     <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
+      <div class="step"><div class="step-num">1</div>
         <div><div class="step-title" data-i18n="step1_title">Crée ton compte</div>
-          <div class="step-desc" data-i18n="step1_desc">Nom de ta startup, email, mot de passe. Aucune carte bancaire requise.</div></div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
+          <div class="step-desc" data-i18n="step1_desc">Nom de ton entreprise, email, mot de passe. Aucune carte bancaire requise.</div></div></div>
+      <div class="step"><div class="step-num">2</div>
         <div><div class="step-title" data-i18n="step2_title">Alimente tes modules</div>
-          <div class="step-desc" data-i18n="step2_desc">Tes chiffres, tes contrats, tes concurrents, tes retours clients — à ton rythme.</div></div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div><div class="step-title" data-i18n="step3_title">Partage &amp; décide</div>
-          <div class="step-desc" data-i18n="step3_desc">Génère ton update investisseur et garde une vue d'ensemble claire de ta startup.</div></div>
-      </div>
+          <div class="step-desc" data-i18n="step2_desc">Tes chiffres, tes contrats, tes concurrents, tes retours clients — à ton rythme.</div></div></div>
+      <div class="step"><div class="step-num">3</div>
+        <div><div class="step-title" data-i18n="step3_title">Surveille &amp; décide</div>
+          <div class="step-desc" data-i18n="step3_desc">Consulte ton score de santé, tes alertes, et garde une vue claire de ton entreprise.</div></div></div>
     </div>
   </section>
 
   <div class="final-cta">
-    <h2 data-i18n="final_title">Prêt à piloter ta startup ?</h2>
+    <h2 data-i18n="final_title">Prêt à surveiller votre entreprise ?</h2>
     <p data-i18n="final_sub">Gratuit pour commencer. Aucune carte bancaire requise.</p>
-    <a href="app.html" class="btn-primary" style="max-width:280px;margin:0 auto;display:block" data-i18n="cta_primary">Créer mon compte gratuitement</a>
+    <a href="login.html" class="btn-primary" style="max-width:280px;margin:0 auto;display:block" data-i18n="cta_primary">Commencer gratuitement</a>
   </div>
-
 </div>
 
-<footer>
-  <p data-i18n="footer_text">FoundrOS — construit pour les fondateurs qui n'ont pas le temps de tout faire à la main.</p>
-</footer>
+<footer><p data-i18n="footer_text">Survéo — Powered by SSCE™. Construit pour les dirigeants qui n'ont pas le temps de tout faire à la main.</p></footer>
 
 <script>
 const translations = {
   fr: {
     nav_cta: "Se connecter",
-    eyebrow: "✦ Pour fondateurs pré-seed &amp; seed",
-    hero_title: 'Le cockpit qui pilote <span>ta startup</span>',
-    hero_sub: "Finance, updates investisseurs, contrats, veille concurrentielle et retours clients — centralisés en un seul endroit, avec l'IA qui fait la mise en forme à ta place.",
-    cta_primary: "Créer mon compte gratuitement",
-    cta_secondary: "J'ai déjà un compte",
+    eyebrow: "✦ Pour dirigeants &amp; fondateurs",
+    hero_title: 'Le système intelligent qui <span>surveille votre entreprise</span>',
+    signature: "Surveillez. Comprenez. Décidez.",
+    hero_sub: "Survéo ne se contente pas de montrer vos chiffres. Il surveille votre trésorerie, vos contrats, vos concurrents et vos clients — et vous dit ce qui compte, au bon moment.",
+    cta_primary: "Commencer gratuitement",
+    cta_secondary: "Découvrir Survéo",
     preview_label: "Runway restant",
     preview_badge: "Sain",
-    problem_eyebrow: "Le problème",
-    problem_title: "Ton reporting prend des heures — alors tu arrêtes de le faire",
-    problem_sub: "Les fondateurs qui informent régulièrement leurs investisseurs lèvent plus vite leur prochain tour. Mais entre gérer l'équipe, les ventes et le produit, sortir les chiffres du tableur et tout mettre en forme passe toujours en dernier.",
-    problem_quote: '"Je voulais juste savoir où j\'en étais — trésorerie, contrats, concurrents, retours clients — sans ouvrir 5 fichiers différents à chaque fois."',
+    ssce_eyebrow: "La technologie derrière Survéo",
+    ssce_title: "SSCE™ — Système de Surveillance des Chiffres de l'Entreprise",
+    ssce_sub: "Un moteur simple qui structure ce que vous lui donnez : vos chiffres, vos contrats, vos concurrents, vos retours clients — pour en tirer un score de santé réel et des alertes basées sur vos données, jamais inventées.",
+    ssce_1: "Surveiller", ssce_2: "Analyser", ssce_3: "Anticiper", ssce_4: "Agir",
     modules_eyebrow: "5 modules, un seul cockpit",
-    modules_title: "Tout ce qu'un fondateur doit suivre",
-    mod1_name: "Investor Hub",
-    mod1_desc: "Génère une update investisseur propre à partir de tes chiffres et de notes brutes — l'IA rédige, tu valides.",
-    mod2_name: "Finance",
-    mod2_desc: "Suis tes dépenses mensuelles et vois ton runway se projeter automatiquement.",
-    mod3_name: "Legal",
-    mod3_desc: "Colle un contrat, l'IA en extrait les dates clés et t'alerte avant chaque préavis.",
-    mod4_name: "Market Watch",
-    mod4_desc: "Un journal centralisé pour noter ce que font tes concurrents, au lieu de captures d'écran éparpillées.",
-    mod5_name: "Voice of Customer",
-    mod5_desc: "Centralise les retours clients et laisse l'IA repérer les tendances qui reviennent.",
+    modules_title: "Tout ce qu'un dirigeant doit suivre",
+    mod1_name: "Investor Hub", mod1_desc: "Génère une update investisseur propre à partir de tes chiffres et de notes brutes — l'IA rédige, tu valides.",
+    mod2_name: "Finance", mod2_desc: "Suis tes dépenses mensuelles et vois ton runway se projeter automatiquement.",
+    mod3_name: "Legal", mod3_desc: "Colle un contrat, l'IA en extrait les dates clés et t'alerte avant chaque préavis.",
+    mod4_name: "Market Watch", mod4_desc: "Un journal centralisé pour noter ce que font tes concurrents.",
+    mod5_name: "Customer Voice", mod5_desc: "Centralise les retours clients et laisse l'IA repérer les tendances qui reviennent.",
     how_eyebrow: "Comment ça marche",
     how_title: "Trois étapes, pas plus",
-    step1_title: "Crée ton compte",
-    step1_desc: "Nom de ta startup, email, mot de passe. Aucune carte bancaire requise.",
-    step2_title: "Alimente tes modules",
-    step2_desc: "Tes chiffres, tes contrats, tes concurrents, tes retours clients — à ton rythme.",
-    step3_title: "Partage &amp; décide",
-    step3_desc: "Génère ton update investisseur et garde une vue d'ensemble claire de ta startup.",
-    final_title: "Prêt à piloter ta startup ?",
+    step1_title: "Crée ton compte", step1_desc: "Nom de ton entreprise, email, mot de passe. Aucune carte bancaire requise.",
+    step2_title: "Alimente tes modules", step2_desc: "Tes chiffres, tes contrats, tes concurrents, tes retours clients — à ton rythme.",
+    step3_title: "Surveille &amp; décide", step3_desc: "Consulte ton score de santé, tes alertes, et garde une vue claire de ton entreprise.",
+    final_title: "Prêt à surveiller votre entreprise ?",
     final_sub: "Gratuit pour commencer. Aucune carte bancaire requise.",
-    footer_text: "FoundrOS — construit pour les fondateurs qui n'ont pas le temps de tout faire à la main."
+    footer_text: "Survéo — Powered by SSCE™. Construit pour les dirigeants qui n'ont pas le temps de tout faire à la main."
   },
   en: {
     nav_cta: "Log in",
-    eyebrow: "✦ For pre-seed &amp; seed founders",
-    hero_title: 'The cockpit that runs <span>your startup</span>',
-    hero_sub: "Finance, investor updates, contracts, competitor tracking and customer feedback — all in one place, with AI doing the formatting for you.",
-    cta_primary: "Create my free account",
-    cta_secondary: "I already have an account",
+    eyebrow: "✦ For founders &amp; business owners",
+    hero_title: 'The intelligent system that <span>monitors your business</span>',
+    signature: "Monitor. Understand. Decide.",
+    hero_sub: "Survéo doesn't just show your numbers. It monitors your cash, contracts, competitors and customers — and tells you what matters, at the right time.",
+    cta_primary: "Start for free",
+    cta_secondary: "Discover Survéo",
     preview_label: "Runway left",
     preview_badge: "Healthy",
-    problem_eyebrow: "The problem",
-    problem_title: "Your reporting takes hours — so you stop doing it",
-    problem_sub: "Founders who update their investors regularly close their next round faster. But between running the team, sales and the product, pulling numbers into a spreadsheet always ends up last on the list.",
-    problem_quote: '"I just wanted to know where I stood — cash, contracts, competitors, customer feedback — without opening 5 different files every time."',
+    ssce_eyebrow: "The technology behind Survéo",
+    ssce_title: "SSCE™ — Business Metrics Surveillance System",
+    ssce_sub: "A simple engine that structures what you feed it: your numbers, contracts, competitors, customer feedback — to produce a real health score and alerts based on your actual data, never invented.",
+    ssce_1: "Monitor", ssce_2: "Analyze", ssce_3: "Anticipate", ssce_4: "Act",
     modules_eyebrow: "5 modules, one cockpit",
-    modules_title: "Everything a founder needs to track",
-    mod1_name: "Investor Hub",
-    mod1_desc: "Generate a clean investor update from your numbers and rough notes — AI drafts it, you approve it.",
-    mod2_name: "Finance",
-    mod2_desc: "Track your monthly expenses and watch your runway project automatically.",
-    mod3_name: "Legal",
-    mod3_desc: "Paste a contract, AI extracts the key dates and warns you before every notice period.",
-    mod4_name: "Market Watch",
-    mod4_desc: "A centralized log for tracking what your competitors are doing, instead of scattered screenshots.",
-    mod5_name: "Voice of Customer",
-    mod5_desc: "Centralize customer feedback and let AI spot the recurring themes.",
+    modules_title: "Everything a business owner needs to track",
+    mod1_name: "Investor Hub", mod1_desc: "Generate a clean investor update from your numbers and rough notes — AI drafts it, you approve it.",
+    mod2_name: "Finance", mod2_desc: "Track your monthly expenses and watch your runway project automatically.",
+    mod3_name: "Legal", mod3_desc: "Paste a contract, AI extracts the key dates and warns you before every notice period.",
+    mod4_name: "Market Watch", mod4_desc: "A centralized log for tracking what your competitors are doing.",
+    mod5_name: "Customer Voice", mod5_desc: "Centralize customer feedback and let AI spot the recurring themes.",
     how_eyebrow: "How it works",
     how_title: "Three steps, that's it",
-    step1_title: "Create your account",
-    step1_desc: "Startup name, email, password. No credit card required.",
-    step2_title: "Feed your modules",
-    step2_desc: "Your numbers, contracts, competitors, customer feedback — at your own pace.",
-    step3_title: "Share &amp; decide",
-    step3_desc: "Generate your investor update and keep a clear overview of your startup.",
-    final_title: "Ready to run your startup?",
+    step1_title: "Create your account", step1_desc: "Company name, email, password. No credit card required.",
+    step2_title: "Feed your modules", step2_desc: "Your numbers, contracts, competitors, customer feedback — at your own pace.",
+    step3_title: "Monitor &amp; decide", step3_desc: "Check your health score, your alerts, and keep a clear view of your business.",
+    final_title: "Ready to monitor your business?",
     final_sub: "Free to start. No credit card required.",
-    footer_text: "FoundrOS — built for founders who don't have time to do it all by hand."
+    footer_text: "Survéo — Powered by SSCE™. Built for owners who don't have time to do it all by hand."
   }
 };
 
@@ -316,10 +244,8 @@ function setLang(lang){
   document.documentElement.lang = lang;
 }
 
-/* Animation de la preview au chargement */
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(()=>{ document.getElementById('previewGauge').style.width = '78%'; }, 300);
-
   const points = [12,18,15,24,20,30,26,34];
   const w=400,h=80,pad=6;
   const min=Math.min(...points), max=Math.max(...points), range=(max-min)||1;
@@ -342,6 +268,5 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 200);
 });
 </script>
-
 </body>
 </html>

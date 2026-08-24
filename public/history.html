@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survéo — Historique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="shell">
+  <div class="topnav">
+    <div class="brand"><div class="brand-mark">S</div><div class="brand-name">Survéo</div></div>
+    <div class="topnav-right">
+      <div class="tabs">
+        <a href="dashboard.html" class="tab">Pulse</a>
+        <a href="update.html" class="tab">Update</a>
+        <a href="history.html" class="tab active">Historique</a>
+        <a href="finance.html" class="tab">Finance</a>
+        <a href="legal.html" class="tab">Legal</a>
+        <a href="market.html" class="tab">Veille</a>
+        <a href="voc.html" class="tab">Clients</a>
+      </div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div class="container" style="max-width:640px">
+    <div class="section-title" style="margin-top:0"><span class="n">#</span>Updates archivées</div>
+    <div id="historyList"><div class="chart-empty">Chargement...</div></div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let history_ = [];
+function fmtEuroLocal(n){ return fmtEuro(n); }
+
+async function load(){
+  const user = await requireAuth();
+  if(!user) return;
+  try{
+    const { updates } = await apiCall('/api/updates');
+    history_ = updates;
+    render();
+  }catch(e){ console.error(e); }
+}
+
+function render(){
+  const listEl = document.getElementById('historyList');
+  const h = [...history_].reverse();
+  if(h.length===0){ listEl.innerHTML = '<div class="chart-empty">Aucune update archivée pour l\u2019instant.</div>'; return; }
+  listEl.innerHTML = h.map(entry=>{
+    const runway = entry.burn>0 ? (entry.cash/entry.burn).toFixed(1) : '—';
+    return `<div class="history-item" id="hist-${entry.id}">
+      <div class="history-item-top" onclick="toggleItem('${entry.id}')">
+        <div class="history-date">${monthLabel(entry.ts)}</div>
+        <button class="history-del" onclick="event.stopPropagation(); del('${entry.id}')">Supprimer</button>
+      </div>
+      <div class="history-metrics" onclick="toggleItem('${entry.id}')">
+        <span>ARR <b>${fmtEuro(entry.arr)}</b></span><span>Runway <b>${runway} mo</b></span>
+      </div>
+      <div class="history-detail" id="hist-detail-${entry.id}"></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleItem(id){
+  const item = document.getElementById('hist-'+id);
+  const wasOpen = item.classList.contains('open');
+  item.classList.toggle('open');
+  if(!wasOpen){
+    const entry = history_.find(e=>e.id===id);
+    document.getElementById('hist-detail-'+id).innerHTML = `
+      ${entry.aiUsed?'<span class="ai-chip" style="margin-bottom:10px;display:inline-block">✦ Rédigé par IA</span>':''}
+      <div class="u-block"><h4>Victoires</h4><p>${entry.winsText}</p></div>
+      <div class="u-block"><h4>Défis & besoins</h4><p>${entry.challengesText}</p></div>`;
+  }
+}
+
+async function del(id){
+  if(!confirm('Supprimer cette update ?')) return;
+  try{ await apiCall('/api/updates/'+id, {method:'DELETE'}); await load(); }catch(e){ alert('Erreur : '+e.message); }
+}
+
+load();
+</script>
+</body>
+</html>

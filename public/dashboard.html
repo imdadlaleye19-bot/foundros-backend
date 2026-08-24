@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survéo Pulse — Tableau de bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .health-ring-wrap{display:flex;align-items:center;gap:18px;}
+  .health-ring{position:relative;width:84px;height:84px;flex-shrink:0;}
+  .health-ring svg{transform:rotate(-90deg);}
+  .health-ring .bg{fill:none;stroke:var(--surface-2);stroke-width:8;}
+  .health-ring .fg{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);}
+  .health-ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:700;font-size:1.3rem;}
+  .health-cats{display:flex;flex-direction:column;gap:6px;margin-top:16px;}
+  .health-cat{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;padding:8px 0;border-bottom:1px solid var(--surface-2);}
+  .health-cat:last-child{border-bottom:none;}
+  .health-cat-name{color:var(--muted);}
+  .health-cat-score{font-family:'JetBrains Mono';font-weight:600;}
+  .health-cat-detail{font-size:0.68rem;color:var(--muted);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="topnav">
+    <div class="brand"><div class="brand-mark">S</div><div class="brand-name">Survéo</div></div>
+    <div class="topnav-right">
+      <div class="tabs">
+        <a href="dashboard.html" class="tab active">Pulse</a>
+        <a href="update.html" class="tab">Update</a>
+        <a href="history.html" class="tab">Historique</a>
+        <a href="finance.html" class="tab">Finance</a>
+        <a href="legal.html" class="tab">Legal</a>
+        <a href="market.html" class="tab">Veille</a>
+        <a href="voc.html" class="tab">Clients</a>
+      </div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div id="saveIndicator" class="save-indicator">✓ Enregistré</div>
+
+  <div class="container">
+    <div id="greeting" class="section-title" style="margin-top:0"></div>
+
+    <div class="two-col">
+      <div>
+        <div class="hero-metric">
+          <div class="hero-label">Score de santé Survéo</div>
+          <div id="healthBox">
+            <div class="chart-empty">Génère au moins une update pour voir ton score.</div>
+          </div>
+        </div>
+
+        <div class="hero-metric">
+          <div class="hero-top">
+            <div>
+              <div class="hero-label">Runway restant</div>
+              <div class="hero-value mono" id="runwayValue">—</div>
+              <div class="hero-sub" id="runwaySub">Renseigne tes chiffres pour voir ta trajectoire</div>
+            </div>
+            <div class="runway-badge" id="runwayBadge">—</div>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
+          <div class="gauge-caption"><span>0 mois</span><span>18 mois</span></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">Trajectoire ARR</div>
+          <div id="chartWrap"><div class="chart-empty">Génère au moins 2 updates pour voir ta courbe de croissance</div></div>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric-card"><div class="label">ARR</div><div class="value mono" id="dashARR">—</div><div class="delta" id="dashARRDelta"></div></div>
+          <div class="metric-card"><div class="label">Burn mensuel</div><div class="value mono" id="dashBurn">—</div><div class="delta" id="dashBurnDelta"></div></div>
+          <div class="metric-card"><div class="label">Trésorerie</div><div class="value mono" id="dashCash">—</div></div>
+          <div class="metric-card"><div class="label">Clients actifs</div><div class="value mono" id="dashClients">—</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title" style="margin-top:0"><span class="n">⊞</span>Vue d'ensemble</div>
+        <div class="overview-grid">
+          <a href="finance.html" class="overview-card"><div class="overview-icon">€</div><div class="overview-label">Finance</div><div class="overview-value" id="ovFinance">—</div></a>
+          <a href="legal.html" class="overview-card"><div class="overview-icon">§</div><div class="overview-label">Legal</div><div class="overview-value" id="ovLegal">—</div></a>
+          <a href="market.html" class="overview-card"><div class="overview-icon">◎</div><div class="overview-label">Veille</div><div class="overview-value" id="ovMarket">—</div></a>
+          <a href="voc.html" class="overview-card"><div class="overview-icon">✉</div><div class="overview-label">Clients</div><div class="overview-value" id="ovVoc">—</div></a>
+        </div>
+
+        <div class="section-title" style="margin-top:0"><span class="n">i</span>Dernière update</div>
+        <div id="lastUpdateBox">
+          <div class="empty-cta">Aucune update envoyée pour l'instant.<br><a href="update.html"><button class="primary" style="margin-top:14px">Créer ma première update</button></a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let history_ = [];
+let contracts_ = [];
+
+async function init(){
+  const user = await requireAuth();
+  if(!user) return;
+  document.getElementById('greeting').textContent = (user.companyName || user.email) + " — voici l'état de ton entreprise";
+
+  try{
+    const [updRes, contractRes, expRes, compRes, fbRes] = await Promise.all([
+      apiCall('/api/updates'), apiCall('/api/contracts'), apiCall('/api/expenses'),
+      apiCall('/api/competitors'), apiCall('/api/feedback')
+    ]);
+    history_ = updRes.updates;
+    contracts_ = contractRes.contracts;
+
+    renderHealth();
+    renderDashboard();
+    renderOverview(expRes.expenses, contractRes.contracts, compRes.competitors, fbRes.feedback);
+
+    if(history_.length > 0) renderUpdateDoc(history_[history_.length-1]);
+  }catch(e){ console.error(e); }
+}
+
+function renderHealth(){
+  const result = computeHealthScore({ updates: history_, contracts: contracts_ });
+  const box = document.getElementById('healthBox');
+  if(!result){
+    box.innerHTML = '<div class="chart-empty">Génère au moins une update pour voir ton score.</div>';
+    return;
+  }
+  const circumference = 2 * Math.PI * 34;
+  const offset = circumference * (1 - result.overall/100);
+  box.innerHTML = `
+    <div class="health-ring-wrap">
+      <div class="health-ring">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle class="bg" cx="42" cy="42" r="34"/>
+          <circle class="fg" cx="42" cy="42" r="34" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" id="ringFg"/>
+        </svg>
+        <div class="val">${result.overall}</div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--muted)">sur 100<br><span style="color:var(--text);font-weight:600">basé sur ${result.categories.length} indicateur(s) réel(s)</span></div>
+    </div>
+    <div class="health-cats">
+      ${result.categories.map(c=>`
+        <div class="health-cat">
+          <div><div class="health-cat-name">${c.label}</div><div class="health-cat-detail">${c.detail}</div></div>
+          <div class="health-cat-score" style="color:${c.score>=70?'var(--accent)':c.score>=40?'var(--warn)':'var(--danger)'}">${c.score}</div>
+        </div>`).join('')}
+    </div>
+  `;
+  setTimeout(()=>{ document.getElementById('ringFg').style.strokeDashoffset = offset; }, 100);
+}
+
+function renderDashboard(){
+  if(history_.length===0) return;
+  const latest = history_[history_.length-1];
+  document.getElementById('dashARR').textContent = fmtEuro(latest.arr);
+  document.getElementById('dashBurn').textContent = fmtEuro(latest.burn);
+  document.getElementById('dashCash').textContent = fmtEuro(latest.cash);
+  document.getElementById('dashClients').textContent = latest.clients;
+
+  const arrDelta = pctDelta(latest.arr, latest.arrPrev);
+  const arrDeltaEl = document.getElementById('dashARRDelta');
+  if(arrDelta!==null){ arrDeltaEl.textContent=(arrDelta>=0?'↑ ':'↓ ')+Math.abs(arrDelta).toFixed(0)+'% vs mois dernier'; arrDeltaEl.className='delta '+(arrDelta>=0?'up':'down'); }
+
+  const burnDelta = pctDelta(latest.burn, latest.burnPrev);
+  const burnDeltaEl = document.getElementById('dashBurnDelta');
+  if(burnDelta!==null){ burnDeltaEl.textContent=(burnDelta<=0?'↓ ':'↑ ')+Math.abs(burnDelta).toFixed(0)+'% vs mois dernier'; burnDeltaEl.className='delta '+(burnDelta<=0?'up':'down'); }
+
+  const runway = latest.burn > 0 ? (latest.cash/latest.burn) : null;
+  const runwayEl=document.getElementById('runwayValue'), gaugeFill=document.getElementById('gaugeFill'),
+        runwaySub=document.getElementById('runwaySub'), badge=document.getElementById('runwayBadge');
+  if(runway!==null){
+    runwayEl.textContent = runway.toFixed(1) + ' mois';
+    gaugeFill.style.width = Math.min(100,(runway/18)*100) + '%';
+    if(runway<6){ runwaySub.textContent='Runway critique — sous les 6 mois'; runwaySub.className='hero-sub warn'; badge.textContent='Vigilance'; badge.className='runway-badge warn'; gaugeFill.style.background='linear-gradient(90deg,#FFB020,#FF6B6B)'; }
+    else { runwaySub.textContent='Trajectoire saine'; runwaySub.className='hero-sub'; badge.textContent='Sain'; badge.className='runway-badge'; gaugeFill.style.background='linear-gradient(90deg,#2DD4BF,#0EA5E9)'; }
+  }
+  renderChart();
+}
+
+function renderChart(){
+  const wrap = document.getElementById('chartWrap');
+  if(history_.length < 2){ wrap.innerHTML='<div class="chart-empty">Génère au moins 2 updates pour voir ta courbe de croissance</div>'; return; }
+  const w=560, hgt=120, pad=10;
+  const vals = history_.map(e=>e.arr);
+  const min=Math.min(...vals), max=Math.max(...vals), range=(max-min)||1;
+  const stepX=(w-pad*2)/(history_.length-1);
+  const points = history_.map((e,i)=>{ const x=pad+i*stepX; const y=hgt-pad-((e.arr-min)/range)*(hgt-pad*2); return {x,y,e}; });
+  const linePath = points.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const areaPath = linePath + ` L${points[points.length-1].x.toFixed(1)},${hgt} L${points[0].x.toFixed(1)},${hgt} Z`;
+  const dots = points.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#2DD4BF" stroke="#0B0E14" stroke-width="1.5"/>`).join('');
+  const labels = points.map((p,i)=> i%Math.ceil(points.length/6||1)===0 || i===points.length-1 ? `<text x="${p.x.toFixed(1)}" y="${hgt-1}" font-size="8" fill="#7C8798" text-anchor="middle">${monthShort(p.e.ts)}</text>`:'').join('');
+  wrap.innerHTML = `<svg class="trend" viewBox="0 0 ${w} ${hgt}" preserveAspectRatio="none">
+    <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.35"/><stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${areaPath}" fill="url(#areaGrad)" stroke="none"/>
+    <path d="${linePath}" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}${labels}</svg>`;
+}
+
+function renderUpdateDoc(entry){
+  const arrDelta = pctDelta(entry.arr, entry.arrPrev);
+  const burnDelta = pctDelta(entry.burn, entry.burnPrev);
+  const runway = entry.burn > 0 ? (entry.cash/entry.burn) : null;
+  document.getElementById('lastUpdateBox').innerHTML = `
+    <div class="update-doc">
+      <div class="u-title-row"><div class="u-title">Update investisseurs</div>${entry.aiUsed?'<span class="ai-chip">✦ Rédigé par IA</span>':''}</div>
+      <div class="u-date">${monthLabel(entry.ts)}</div>
+      <div class="u-metrics">
+        <div class="u-metric"><div class="mv">${fmtEuro(entry.arr)}</div><div class="ml">ARR ${arrDelta!==null?(arrDelta>=0?'↑':'↓')+Math.abs(arrDelta).toFixed(0)+'%':''}</div></div>
+        <div class="u-metric"><div class="mv">${fmtEuro(entry.burn)}</div><div class="ml">Burn ${burnDelta!==null?(burnDelta<=0?'↓':'↑')+Math.abs(burnDelta).toFixed(0)+'%':''}</div></div>
+        <div class="u-metric"><div class="mv">${runway!==null?runway.toFixed(1)+' mo':'—'}</div><div class="ml">Runway</div></div>
+      </div>
+      <div class="u-block"><h4>Victoires</h4><p>${entry.winsText}</p></div>
+      <div class="u-block"><h4>Défis & besoins</h4><p>${entry.challengesText}</p></div>
+    </div>`;
+}
+
+function renderOverview(expenses, contracts, competitors, feedback){
+  const currentMonth = new Date().toISOString().slice(0,7);
+  const thisMonthTotal = expenses.filter(e=>e.month===currentMonth).reduce((s,e)=>s+e.amount,0);
+  const ovFinance = document.getElementById('ovFinance');
+  ovFinance.textContent = expenses.length ? fmtEuro(thisMonthTotal)+' ce mois' : 'Aucune dépense suivie';
+
+  const now = Date.now();
+  let legalAlerts = 0;
+  contracts.forEach(c=>{
+    if(c.endDate && c.noticeDays){
+      const endTs = new Date(c.endDate).getTime();
+      const noticeTs = endTs - c.noticeDays*86400000;
+      if(!isNaN(noticeTs) && now >= noticeTs - 60*86400000 && now <= endTs) legalAlerts++;
+    }
+  });
+  const ovLegal = document.getElementById('ovLegal');
+  if(legalAlerts > 0){ ovLegal.textContent = legalAlerts+' préavis à examiner'; ovLegal.className='overview-value warn'; }
+  else if(contracts.length){ ovLegal.textContent = contracts.length+' contrat(s) suivi(s)'; ovLegal.className='overview-value ok'; }
+  else { ovLegal.textContent = 'Aucun contrat suivi'; }
+
+  document.getElementById('ovMarket').textContent = competitors.length ? competitors.length+' concurrent(s) suivi(s)' : 'Aucun concurrent suivi';
+
+  const weekAgo = Date.now() - 7*86400000;
+  const recentFb = feedback.filter(f=>f.ts >= weekAgo).length;
+  document.getElementById('ovVoc').textContent = feedback.length ? recentFb+' retour(s) cette semaine' : 'Aucun retour enregistré';
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survéo Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="shell">
+  <div class="topnav">
+    <div class="brand"><div class="brand-mark">S</div><div class="brand-name">Survéo</div></div>
+    <div class="topnav-right">
+      <div class="tabs">
+        <a href="dashboard.html" class="tab">Pulse</a>
+        <a href="update.html" class="tab">Update</a>
+        <a href="history.html" class="tab">Historique</a>
+        <a href="finance.html" class="tab active">Finance</a>
+        <a href="legal.html" class="tab">Legal</a>
+        <a href="market.html" class="tab">Veille</a>
+        <a href="voc.html" class="tab">Clients</a>
+      </div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div id="saveIndicator" class="save-indicator">✓ Enregistré</div>
+  <div class="container" style="max-width:640px">
+    <div class="module-note">Pas de connexion bancaire réelle ici — tu ajoutes tes dépenses toi-même, le module calcule ta projection de trésorerie automatiquement.</div>
+    <div class="summary-strip">
+      <div class="summary-box"><div class="sv mono" id="finTotalMonth">—</div><div class="sl">Dépenses ce mois</div></div>
+      <div class="summary-box"><div class="sv mono" id="finProjRunway">—</div><div class="sl">Runway projeté</div></div>
+      <div class="summary-box"><div class="sv mono" id="finAvgBurn">—</div><div class="sl">Burn moyen/mois</div></div>
+    </div>
+    <div class="section-title" style="margin-top:0"><span class="n">+</span>Ajouter une dépense</div>
+    <div class="row2">
+      <div class="field-group"><label class="field-label">Catégorie</label>
+        <select id="expCategory"><option>Salaires</option><option>Outils / SaaS</option><option>Marketing</option><option>Bureau / Local</option><option>Prestataires</option><option>Autre</option></select></div>
+      <div class="field-group"><label class="field-label">Mois</label><input type="text" id="expMonth" placeholder="2026-08"></div>
+    </div>
+    <div class="row2">
+      <div class="field-group"><label class="field-label">Libellé</label><input type="text" id="expLabel" placeholder="ex: hébergement serveur"></div>
+      <div class="field-group"><label class="field-label">Montant (€)</label><input type="number" class="mono" id="expAmount" placeholder="ex: 45"></div>
+    </div>
+    <button class="primary" onclick="addExpense()">Ajouter la dépense</button>
+    <div class="section-title"><span class="n">≡</span>Dépenses enregistrées</div>
+    <div id="expenseList"><div class="chart-empty">Chargement...</div></div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let expenses_ = [];
+let history_ = [];
+
+async function load(){
+  const user = await requireAuth();
+  if(!user) return;
+  try{
+    const [expRes, updRes] = await Promise.all([apiCall('/api/expenses'), apiCall('/api/updates')]);
+    expenses_ = expRes.expenses;
+    history_ = updRes.updates;
+    render();
+  }catch(e){ console.error(e); }
+}
+
+async function addExpense(){
+  const category = document.getElementById('expCategory').value;
+  const label = document.getElementById('expLabel').value.trim();
+  const amount = parseFloat(document.getElementById('expAmount').value);
+  const month = document.getElementById('expMonth').value.trim() || new Date().toISOString().slice(0,7);
+  if(!amount){ alert("Indique un montant."); return; }
+  try{
+    await apiCall('/api/expenses', { method:'POST', body: JSON.stringify({category, label, amount, month}) });
+    document.getElementById('expLabel').value=''; document.getElementById('expAmount').value='';
+    showSaveIndicator();
+    await load();
+  }catch(e){ alert('Erreur : '+e.message); }
+}
+async function deleteExpense(id){
+  if(!confirm('Supprimer cette dépense ?')) return;
+  try{ await apiCall('/api/expenses/'+id, {method:'DELETE'}); await load(); }catch(e){ alert('Erreur : '+e.message); }
+}
+
+function render(){
+  const currentMonth = new Date().toISOString().slice(0,7);
+  const thisMonth = expenses_.filter(e=>e.month===currentMonth);
+  document.getElementById('finTotalMonth').textContent = fmtEuro(thisMonth.reduce((s,e)=>s+e.amount,0));
+
+  const byMonth = {};
+  expenses_.forEach(e=>{ byMonth[e.month] = (byMonth[e.month]||0) + e.amount; });
+  const months = Object.keys(byMonth);
+  const avgBurn = months.length ? Object.values(byMonth).reduce((a,b)=>a+b,0)/months.length : 0;
+  document.getElementById('finAvgBurn').textContent = months.length ? fmtEuro(avgBurn) : '—';
+
+  const latestUpdate = history_[history_.length-1];
+  document.getElementById('finProjRunway').textContent = (latestUpdate && avgBurn > 0) ? (latestUpdate.cash/avgBurn).toFixed(1)+' mo' : '—';
+
+  const listEl = document.getElementById('expenseList');
+  if(expenses_.length===0){ listEl.innerHTML = '<div class="chart-empty">Aucune dépense enregistrée.</div>'; return; }
+  listEl.innerHTML = expenses_.map(e=>`
+    <div class="list-card">
+      <div class="list-card-top">
+        <div><div class="list-card-title">${e.label || e.category}</div><div class="list-card-sub">${e.category} · ${e.month}</div></div>
+        <button class="list-card-del" onclick="deleteExpense('${e.id}')">Supprimer</button>
+      </div>
+      <div class="list-card-body mono">${fmtEuro(e.amount)}</div>
+    </div>`).join('');
+}
+load();
+</script>
+</body>
+</html>
