@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
+<title>Survéo — Réglages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .settings-block{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
+  .settings-block h3{font-size:0.92rem;margin-bottom:4px;}
+  .settings-block .desc{font-size:0.78rem;color:var(--muted);margin-bottom:16px;}
+  .danger-block{border-color:#FF6B6B33;}
+  .danger-block h3{color:var(--danger);}
+  .info-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--surface-2);font-size:0.84rem;}
+  .info-row:last-child{border-bottom:none;}
+  .info-row .k{color:var(--muted);}
+  .info-row .v{font-family:'JetBrains Mono';}
+  .ok-msg{font-size:0.78rem;color:var(--success);margin-top:8px;display:none;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topnav">
+    <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
+    <div class="topnav-right">
+      <button class="hamburger-btn" onclick="toggleDrawer()"><span></span></button>
+      <div class="tabs"></div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div class="nav-overlay" id="navOverlay" onclick="closeDrawer()"></div>
+  <div class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer-head">
+      <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
+      <button class="nav-drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="nav-group-label">PILOTAGE</div>
+    <a href="dashboard.html" class="nav-link"><span class="dot"></span>Pulse</a>
+    <div class="nav-group-label">INTELLIGENCE</div>
+    <a href="ai.html" class="nav-link"><span class="dot"></span>Survéo AI</a>
+    <div class="nav-group-label">RAPPORTS</div>
+    <a href="update.html" class="nav-link"><span class="dot"></span>Update</a>
+    <a href="history.html" class="nav-link"><span class="dot"></span>Historique</a>
+    <div class="nav-group-label">FINANCE</div>
+    <a href="finance.html" class="nav-link"><span class="dot"></span>Finance</a>
+    <div class="nav-group-label">LEGAL</div>
+    <a href="legal.html" class="nav-link"><span class="dot"></span>Legal</a>
+    <div class="nav-group-label">VEILLE</div>
+    <a href="market.html" class="nav-link"><span class="dot"></span>Veille</a>
+    <div class="nav-group-label">CLIENTS</div>
+    <a href="voc.html" class="nav-link"><span class="dot"></span>Clients</a>
+    <div class="nav-group-label">SYSTÈME</div>
+    <a href="settings.html" class="nav-link active"><span class="dot"></span>Réglages</a>
+    <div class="nav-drawer-logout"><button class="ghost" onclick="logout()">Déconnexion</button></div>
+  </div>
+
+  <div class="container" style="max-width:640px">
+    <div class="section-title" style="margin-top:0"><span class="n">i</span>Compte</div>
+    <div class="settings-block">
+      <div class="info-row"><span class="k">Email</span><span class="v" id="infoEmail">—</span></div>
+      <div class="info-row"><span class="k">Membre depuis</span><span class="v" id="infoSince">—</span></div>
+    </div>
+
+    <div class="settings-block">
+      <h3>Nom de l'entreprise</h3>
+      <div class="desc">Affiché dans la navigation et les updates générées.</div>
+      <div class="field-group"><input type="text" id="companyName" placeholder="Nom de ton entreprise"></div>
+      <button class="primary" onclick="saveCompany()">Enregistrer</button>
+      <div class="ok-msg" id="companyOk">✓ Mis à jour</div>
+    </div>
+
+    <div class="settings-block">
+      <h3>Changer de mot de passe</h3>
+      <div class="desc">Tu devras te reconnecter sur tes autres appareils.</div>
+      <div class="field-group"><label class="field-label">Mot de passe actuel</label><input type="password" id="currentPassword"></div>
+      <div class="field-group"><label class="field-label">Nouveau mot de passe</label><input type="password" id="newPassword" placeholder="8 caractères minimum"></div>
+      <div class="auth-error" id="passwordError" style="display:none"></div>
+      <button class="primary" onclick="changePassword()">Mettre à jour le mot de passe</button>
+      <div class="ok-msg" id="passwordOk">✓ Mot de passe mis à jour</div>
+    </div>
+
+    <div class="settings-block">
+      <h3>Exporter mes données</h3>
+      <div class="desc">Télécharge toutes tes données Survéo (updates, dépenses, contrats, concurrents, retours clients) au format JSON.</div>
+      <button class="ghost" onclick="exportData()">Télécharger mes données</button>
+    </div>
+
+    <div class="settings-block danger-block">
+      <h3>Supprimer mon compte</h3>
+      <div class="desc">Action définitive et irréversible. Toutes tes données seront supprimées immédiatement.</div>
+      <div class="field-group"><label class="field-label">Confirme avec ton mot de passe</label><input type="password" id="deletePassword"></div>
+      <div class="auth-error" id="deleteError" style="display:none"></div>
+      <button class="ghost danger" onclick="deleteAccount()">Supprimer définitivement mon compte</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+async function init(){
+  const user = await requireAuth();
+  if(!user) return;
+  document.getElementById('infoEmail').textContent = user.email;
+  document.getElementById('infoSince').textContent = new Date(user.createdAt).toLocaleDateString('fr-FR', {year:'numeric', month:'long'});
+  document.getElementById('companyName').value = user.companyName || '';
+}
+
+async function saveCompany(){
+  const companyName = document.getElementById('companyName').value.trim();
+  try{
+    await apiCall('/api/me', { method:'PUT', body: JSON.stringify({companyName}) });
+    const ok = document.getElementById('companyOk');
+    ok.style.display = 'block';
+    setTimeout(()=>ok.style.display='none', 2500);
+  }catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function changePassword(){
+  const currentPassword = document.getElementById('currentPassword').value;
+  const newPassword = document.getElementById('newPassword').value;
+  const errEl = document.getElementById('passwordError');
+  errEl.style.display = 'none';
+  try{
+    await apiCall('/api/me/password', { method:'PUT', body: JSON.stringify({currentPassword, newPassword}) });
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    const ok = document.getElementById('passwordOk');
+    ok.style.display = 'block';
+    setTimeout(()=>ok.style.display='none', 2500);
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function exportData(){
+  try{
+    const data = await apiCall('/api/me/export');
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'survéo-export-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){ alert('Erreur lors de l\u2019export : '+e.message); }
+}
+
+async function deleteAccount(){
+  const password = document.getElementById('deletePassword').value;
+  const errEl = document.getElementById('deleteError');
+  errEl.style.display = 'none';
+  if(!password){ errEl.textContent = 'Entre ton mot de passe pour confirmer.'; errEl.style.display='block'; return; }
+  if(!confirm('Es-tu certain de vouloir supprimer définitivement ton compte et toutes tes données ? Cette action est irréversible.')) return;
+  try{
+    await apiCall('/api/me', { method:'DELETE', body: JSON.stringify({password}) });
+    clearToken();
+    window.location.href = 'index.html';
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

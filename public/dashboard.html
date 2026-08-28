@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Survéo Pulse — Tableau de bord</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,8 +29,9 @@
 
 <div class="shell">
   <div class="topnav">
-    <div class="brand"><div class="brand-mark">S</div><div class="brand-name">Survéo</div></div>
+    <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
     <div class="topnav-right">
+      <button class="hamburger-btn" onclick="toggleDrawer()"><span></span></button>
       <div class="tabs">
         <a href="dashboard.html" class="tab active">Pulse</a>
         <a href="update.html" class="tab">Update</a>
@@ -39,6 +43,31 @@
       </div>
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
     </div>
+  </div>
+  <div class="nav-overlay" id="navOverlay" onclick="closeDrawer()"></div>
+  <div class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer-head">
+      <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
+      <button class="nav-drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="nav-group-label">PILOTAGE</div>
+    <a href="dashboard.html" class="nav-link active"><span class="dot"></span>Pulse</a>
+    <div class="nav-group-label">INTELLIGENCE</div>
+    <a href="ai.html" class="nav-link"><span class="dot"></span>Survéo AI</a>
+    <div class="nav-group-label">RAPPORTS</div>
+    <a href="update.html" class="nav-link"><span class="dot"></span>Update</a>
+    <a href="history.html" class="nav-link"><span class="dot"></span>Historique</a>
+    <div class="nav-group-label">FINANCE</div>
+    <a href="finance.html" class="nav-link"><span class="dot"></span>Finance</a>
+    <div class="nav-group-label">LEGAL</div>
+    <a href="legal.html" class="nav-link"><span class="dot"></span>Legal</a>
+    <div class="nav-group-label">VEILLE</div>
+    <a href="market.html" class="nav-link"><span class="dot"></span>Veille</a>
+    <div class="nav-group-label">CLIENTS</div>
+    <a href="voc.html" class="nav-link"><span class="dot"></span>Clients</a>
+    <div class="nav-group-label">SYSTÈME</div>
+    <a href="settings.html" class="nav-link"><span class="dot"></span>Réglages</a>
+    <div class="nav-drawer-logout"><button class="ghost" onclick="logout()">Déconnexion</button></div>
   </div>
   <div id="saveIndicator" class="save-indicator">✓ Enregistré</div>
 
@@ -178,7 +207,7 @@ function renderDashboard(){
     runwayEl.textContent = runway.toFixed(1) + ' mois';
     gaugeFill.style.width = Math.min(100,(runway/18)*100) + '%';
     if(runway<6){ runwaySub.textContent='Runway critique — sous les 6 mois'; runwaySub.className='hero-sub warn'; badge.textContent='Vigilance'; badge.className='runway-badge warn'; gaugeFill.style.background='linear-gradient(90deg,#FFB020,#FF6B6B)'; }
-    else { runwaySub.textContent='Trajectoire saine'; runwaySub.className='hero-sub'; badge.textContent='Sain'; badge.className='runway-badge'; gaugeFill.style.background='linear-gradient(90deg,#2DD4BF,#0EA5E9)'; }
+    else { runwaySub.textContent='Trajectoire saine'; runwaySub.className='hero-sub'; badge.textContent='Sain'; badge.className='runway-badge'; gaugeFill.style.background='linear-gradient(90deg,#22C55E,#0091FF)'; }
   }
   renderChart();
 }
@@ -193,14 +222,14 @@ function renderChart(){
   const points = history_.map((e,i)=>{ const x=pad+i*stepX; const y=hgt-pad-((e.arr-min)/range)*(hgt-pad*2); return {x,y,e}; });
   const linePath = points.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
   const areaPath = linePath + ` L${points[points.length-1].x.toFixed(1)},${hgt} L${points[0].x.toFixed(1)},${hgt} Z`;
-  const dots = points.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#2DD4BF" stroke="#0B0E14" stroke-width="1.5"/>`).join('');
+  const dots = points.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#0091FF" stroke="#0B0E14" stroke-width="1.5"/>`).join('');
   const labels = points.map((p,i)=> i%Math.ceil(points.length/6||1)===0 || i===points.length-1 ? `<text x="${p.x.toFixed(1)}" y="${hgt-1}" font-size="8" fill="#7C8798" text-anchor="middle">${monthShort(p.e.ts)}</text>`:'').join('');
   wrap.innerHTML = `<svg class="trend" viewBox="0 0 ${w} ${hgt}" preserveAspectRatio="none">
     <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.35"/><stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#0091FF" stop-opacity="0.35"/><stop offset="100%" stop-color="#0091FF" stop-opacity="0"/>
     </linearGradient></defs>
     <path d="${areaPath}" fill="url(#areaGrad)" stroke="none"/>
-    <path d="${linePath}" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${linePath}" fill="none" stroke="#0091FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     ${dots}${labels}</svg>`;
 }
 

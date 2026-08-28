@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
+<title>Survéo AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .ai-hero{text-align:center;padding:8px 0 22px;}
+  .ai-hero-icon{width:48px;height:48px;margin:0 auto 14px;}
+  .ai-hero-icon img{width:100%;height:100%;object-fit:contain;}
+  .ai-hero h1{font-family:'Space Grotesk';font-size:1.3rem;margin-bottom:6px;}
+  .ai-hero p{color:var(--muted);font-size:0.85rem;}
+
+  .ai-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .ai-chip-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:8px 14px;
+    font-size:0.78rem;color:var(--text);cursor:pointer;text-align:left;}
+  .ai-chip-btn:hover{border-color:var(--accent-border);}
+
+  .ai-input-row{display:flex;gap:8px;margin-bottom:22px;}
+  .ai-input-row textarea{flex:1;min-height:52px;max-height:140px;}
+  .ai-send-btn{width:52px;flex-shrink:0;border:none;background:var(--accent);color:#fff;border-radius:12px;
+    font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .ai-send-btn:disabled{opacity:0.5;}
+
+  .ai-thread{display:flex;flex-direction:column;gap:16px;}
+  .ai-q{background:var(--surface-2);border-radius:14px 14px 4px 14px;padding:12px 16px;font-size:0.87rem;
+    max-width:88%;align-self:flex-end;}
+  .ai-a{background:var(--surface);border:1px solid var(--border);border-radius:14px 14px 14px 4px;padding:16px 18px;max-width:92%;}
+  .ai-a-label{display:flex;align-items:center;gap:7px;font-size:0.72rem;font-weight:700;color:var(--accent);
+    text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;}
+  .ai-a-body{font-size:0.87rem;line-height:1.65;color:#D5D9E3;white-space:pre-wrap;}
+  .ai-a-body h4{color:var(--accent);font-size:0.76rem;text-transform:uppercase;letter-spacing:0.04em;
+    margin:14px 0 4px;font-family:'Inter';font-weight:700;}
+  .ai-a-body h4:first-child{margin-top:0;}
+  .ai-data-note{font-size:0.68rem;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--surface-2);}
+  .ai-empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:0.84rem;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topnav">
+    <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
+    <div class="topnav-right">
+      <button class="hamburger-btn" onclick="toggleDrawer()"><span></span></button>
+      <div class="tabs"></div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div class="nav-overlay" id="navOverlay" onclick="closeDrawer()"></div>
+  <div class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer-head">
+      <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
+      <button class="nav-drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="nav-group-label">PILOTAGE</div>
+    <a href="dashboard.html" class="nav-link"><span class="dot"></span>Pulse</a>
+    <div class="nav-group-label">INTELLIGENCE</div>
+    <a href="ai.html" class="nav-link active"><span class="dot"></span>Survéo AI</a>
+    <div class="nav-group-label">RAPPORTS</div>
+    <a href="update.html" class="nav-link"><span class="dot"></span>Update</a>
+    <a href="history.html" class="nav-link"><span class="dot"></span>Historique</a>
+    <div class="nav-group-label">FINANCE</div>
+    <a href="finance.html" class="nav-link"><span class="dot"></span>Finance</a>
+    <div class="nav-group-label">LEGAL</div>
+    <a href="legal.html" class="nav-link"><span class="dot"></span>Legal</a>
+    <div class="nav-group-label">VEILLE</div>
+    <a href="market.html" class="nav-link"><span class="dot"></span>Veille</a>
+    <div class="nav-group-label">CLIENTS</div>
+    <a href="voc.html" class="nav-link"><span class="dot"></span>Clients</a>
+    <div class="nav-group-label">SYSTÈME</div>
+    <a href="settings.html" class="nav-link"><span class="dot"></span>Réglages</a>
+    <div class="nav-drawer-logout"><button class="ghost" onclick="logout()">Déconnexion</button></div>
+  </div>
+
+  <div class="container" style="max-width:640px">
+    <div class="ai-hero">
+      <div class="ai-hero-icon"><img src="assets/logo-symbol.png" alt=""></div>
+      <h1>Survéo AI</h1>
+      <p>Pose une question sur ton entreprise. Les réponses s'appuient uniquement sur les données que tu as déjà enregistrées.</p>
+    </div>
+
+    <div class="ai-suggestions" id="suggestions"></div>
+
+    <div class="ai-input-row">
+      <textarea id="question" placeholder="ex: Pourquoi mon runway a baissé ce mois-ci ?"></textarea>
+      <button class="ai-send-btn" id="sendBtn" onclick="ask()">↑</button>
+    </div>
+
+    <div class="ai-thread" id="thread"></div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let dataContext = null;
+
+const SUGGESTIONS = [
+  "Comment va mon entreprise en ce moment ?",
+  "Quels sont mes principaux risques ?",
+  "Où puis-je réduire mes dépenses ?",
+  "Quels contrats demandent mon attention ?",
+  "Que disent mes clients en ce moment ?",
+];
+
+function renderSuggestions(){
+  document.getElementById('suggestions').innerHTML = SUGGESTIONS.map(s =>
+    `<button class="ai-chip-btn" onclick="document.getElementById('question').value='${s.replace(/'/g,"&apos;")}'; document.getElementById('question').focus();">${s}</button>`
+  ).join('');
+}
+
+async function loadContext(){
+  const [updRes, expRes, contractRes, compRes, fbRes] = await Promise.all([
+    apiCall('/api/updates'), apiCall('/api/expenses'), apiCall('/api/contracts'),
+    apiCall('/api/competitors'), apiCall('/api/feedback')
+  ]);
+  dataContext = {
+    updates: updRes.updates, expenses: expRes.expenses, contracts: contractRes.contracts,
+    competitors: compRes.competitors, feedback: fbRes.feedback
+  };
+}
+
+function buildDataSummary(ctx){
+  const parts = [];
+
+  if(ctx.updates.length > 0){
+    const latest = ctx.updates[ctx.updates.length-1];
+    const runway = latest.burn > 0 ? (latest.cash/latest.burn).toFixed(1) : "inconnu";
+    parts.push(`UPDATES INVESTISSEURS (${ctx.updates.length} au total) — dernière update (${monthLabel(latest.ts)}) : ARR=${latest.arr}€ (précédent: ${latest.arrPrev}€), Burn=${latest.burn}€/mois (précédent: ${latest.burnPrev}€), Trésorerie=${latest.cash}€, Runway=${runway} mois, Clients actifs=${latest.clients}. Victoires notées: "${latest.wins||'aucune'}". Difficultés notées: "${latest.challenges||'aucune'}".`);
+    if(ctx.updates.length > 1){
+      const hist = ctx.updates.map(u=>`${monthLabel(u.ts)}: ARR=${u.arr}€, Burn=${u.burn}€`).join(' | ');
+      parts.push(`Historique ARR/Burn : ${hist}`);
+    }
+  } else {
+    parts.push("UPDATES INVESTISSEURS : aucune donnée enregistrée.");
+  }
+
+  if(ctx.expenses.length > 0){
+    const expList = ctx.expenses.map(e=>`${e.category}${e.label?' ('+e.label+')':''}: ${e.amount}€ [${e.month}]`).join(', ');
+    parts.push(`DÉPENSES (${ctx.expenses.length} entrées) : ${expList}`);
+  } else {
+    parts.push("DÉPENSES : aucune dépense enregistrée dans le module Finance.");
+  }
+
+  if(ctx.contracts.length > 0){
+    const contractList = ctx.contracts.map(c=>`"${c.name}" avec ${c.counterparty||'?'} (type: ${c.contractType||'?'}, fin: ${c.endDate||'?'}, préavis: ${c.noticeDays||'?'}j)${c.summary?' — '+c.summary:''}`).join(' | ');
+    parts.push(`CONTRATS (${ctx.contracts.length}) : ${contractList}`);
+  } else {
+    parts.push("CONTRATS : aucun contrat suivi dans le module Legal.");
+  }
+
+  if(ctx.competitors.length > 0){
+    parts.push(`CONCURRENTS SUIVIS (${ctx.competitors.length}) : ${ctx.competitors.map(c=>c.name).join(', ')}. (Détail des observations non inclus ici — module Veille.)`);
+  } else {
+    parts.push("CONCURRENTS : aucun concurrent suivi dans le module Veille.");
+  }
+
+  if(ctx.feedback.length > 0){
+    const fbList = ctx.feedback.slice(0,20).map(f=>`[${f.source}] "${f.text}"`).join(' | ');
+    parts.push(`RETOURS CLIENTS (${ctx.feedback.length}) : ${fbList}`);
+  } else {
+    parts.push("RETOURS CLIENTS : aucun retour enregistré dans le module Clients.");
+  }
+
+  return parts.join('\n\n');
+}
+
+async function ask(){
+  const question = document.getElementById('question').value.trim();
+  if(!question) return;
+
+  const thread = document.getElementById('thread');
+  document.getElementById('question').value = '';
+  const sendBtn = document.getElementById('sendBtn');
+  sendBtn.disabled = true;
+
+  const qId = 'q'+Date.now();
+  thread.insertAdjacentHTML('beforeend', `<div class="ai-q">${question}</div><div class="ai-a" id="${qId}"><div class="ai-a-label">✦ Survéo AI</div><div class="ai-a-body"><span class="spinner accent"></span> Analyse de tes données...</div></div>`);
+  thread.scrollTop = thread.scrollHeight;
+  window.scrollTo(0, document.body.scrollHeight);
+
+  try{
+    if(!dataContext) await loadContext();
+    const summary = buildDataSummary(dataContext);
+
+    const prompt = `Tu es Survéo AI, l'assistant d'analyse d'une plateforme de pilotage d'entreprise. Tu réponds UNIQUEMENT à partir des données ci-dessous, réellement enregistrées par l'utilisateur. Tu n'inventes JAMAIS un chiffre ou un fait qui n'est pas dans ces données. Si les données sont insuffisantes pour répondre correctement à la question, dis-le clairement et explique quelle donnée manque, plutôt que de deviner.
+
+DONNÉES DE L'ENTREPRISE :
+${summary}
+
+QUESTION DE L'UTILISATEUR :
+${question}
+
+Réponds en français, de façon structurée mais concise. Utilise ce format quand c'est pertinent (sinon réponds simplement) :
+###ANALYSE
+(constat basé sur les données)
+###RECOMMANDATION
+(action concrète suggérée, seulement si les données le permettent)
+
+N'utilise que les sections pertinentes. Si la question est simple, une seule courte réponse suffit sans les balises ###.`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 700, messages: [{ role: "user", content: prompt }] })
+    });
+    const data = await response.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    if(!textBlock) throw new Error('Réponse vide');
+
+    let formatted = textBlock.text
+      .replace(/###ANALYSE/g, '<h4>Analyse</h4>')
+      .replace(/###CAUSES/g, '<h4>Causes</h4>')
+      .replace(/###IMPACT/g, '<h4>Impact</h4>')
+      .replace(/###RECOMMANDATION/g, '<h4>Recommandation</h4>')
+      .replace(/###PROCHAINE ACTION/g, '<h4>Prochaine action</h4>');
+
+    document.getElementById(qId).innerHTML = `
+      <div class="ai-a-label">✦ Survéo AI</div>
+      <div class="ai-a-body">${formatted}</div>
+      <div class="ai-data-note">Basé sur : ${dataContext.updates.length} update(s), ${dataContext.expenses.length} dépense(s), ${dataContext.contracts.length} contrat(s), ${dataContext.competitors.length} concurrent(s), ${dataContext.feedback.length} retour(s) client.</div>
+    `;
+  }catch(e){
+    document.getElementById(qId).innerHTML = `<div class="ai-a-label">✦ Survéo AI</div><div class="ai-a-body">Désolé, l'analyse a échoué (${e.message}). Réessaie dans un instant.</div>`;
+  }
+
+  sendBtn.disabled = false;
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+document.getElementById('question').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); ask(); }
+});
+
+(async () => {
+  const user = await requireAuth();
+  if(!user) return;
+  renderSuggestions();
+})();
+</script>
+</body>
+</html>

@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Survéo — Update investisseurs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,8 +14,9 @@
 <body>
 <div class="shell">
   <div class="topnav">
-    <div class="brand"><div class="brand-mark">S</div><div class="brand-name">Survéo</div></div>
+    <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
     <div class="topnav-right">
+      <button class="hamburger-btn" onclick="toggleDrawer()"><span></span></button>
       <div class="tabs">
         <a href="dashboard.html" class="tab">Pulse</a>
         <a href="update.html" class="tab active">Update</a>
@@ -24,6 +28,31 @@
       </div>
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
     </div>
+  </div>
+  <div class="nav-overlay" id="navOverlay" onclick="closeDrawer()"></div>
+  <div class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer-head">
+      <div class="brand"><div class="brand-mark"><img src="assets/logo-symbol.png" alt="Survéo"></div><div class="brand-name">Survéo</div></div>
+      <button class="nav-drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="nav-group-label">PILOTAGE</div>
+    <a href="dashboard.html" class="nav-link"><span class="dot"></span>Pulse</a>
+    <div class="nav-group-label">INTELLIGENCE</div>
+    <a href="ai.html" class="nav-link"><span class="dot"></span>Survéo AI</a>
+    <div class="nav-group-label">RAPPORTS</div>
+    <a href="update.html" class="nav-link active"><span class="dot"></span>Update</a>
+    <a href="history.html" class="nav-link"><span class="dot"></span>Historique</a>
+    <div class="nav-group-label">FINANCE</div>
+    <a href="finance.html" class="nav-link"><span class="dot"></span>Finance</a>
+    <div class="nav-group-label">LEGAL</div>
+    <a href="legal.html" class="nav-link"><span class="dot"></span>Legal</a>
+    <div class="nav-group-label">VEILLE</div>
+    <a href="market.html" class="nav-link"><span class="dot"></span>Veille</a>
+    <div class="nav-group-label">CLIENTS</div>
+    <a href="voc.html" class="nav-link"><span class="dot"></span>Clients</a>
+    <div class="nav-group-label">SYSTÈME</div>
+    <a href="settings.html" class="nav-link"><span class="dot"></span>Réglages</a>
+    <div class="nav-drawer-logout"><button class="ghost" onclick="logout()">Déconnexion</button></div>
   </div>
   <div id="saveIndicator" class="save-indicator">✓ Enregistré</div>
 

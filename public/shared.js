@@ -35,6 +35,16 @@ function logout(){
   window.location.href = 'login.html';
 }
 
+// ---------- Menu hamburger mobile ----------
+function toggleDrawer(){
+  document.getElementById('navDrawer').classList.toggle('open');
+  document.getElementById('navOverlay').classList.toggle('open');
+}
+function closeDrawer(){
+  document.getElementById('navDrawer').classList.remove('open');
+  document.getElementById('navOverlay').classList.remove('open');
+}
+
 function fmtEuro(n){ return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(n||0) + ' €'; }
 function pctDelta(cur, prev){ if(!prev || prev===0) return null; return ((cur-prev)/prev*100); }
 function monthLabel(ts){ const d=new Date(ts); const s=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'}); return s.charAt(0).toUpperCase()+s.slice(1); }
