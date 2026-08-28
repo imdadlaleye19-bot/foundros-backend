@@ -9,6 +9,7 @@ const {
   createContract, listContractsForUser, deleteContract,
   createCompetitor, listCompetitorsForUser, deleteCompetitor, createCompetitorNote, listNotesForCompetitor,
   createFeedback, listFeedbackForUser, deleteFeedback,
+  updateUserPassword, updateUserCompany, exportAllUserData, deleteUserAccount,
 } = require('./db');
 const { hashPassword, verifyPassword, createToken, verifyToken } = require('./auth');
 
@@ -64,7 +65,8 @@ function publicNote(n) { return { id: n.id, competitorId: n.competitor_id, note:
 function publicFeedback(f) { return { id: f.id, source: f.source, text: f.text, ts: f.ts }; }
 
 // ---------- Fichiers statiques ----------
-const MIME = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json' };
+const MIME = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json',
+  '.png': 'image/png', '.ico': 'image/x-icon', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml' };
 function serveStatic(req, res) {
   let filePath = req.url === '/' ? '/index.html' : req.url;
   filePath = path.join(PUBLIC_DIR, decodeURIComponent(filePath.split('?')[0]));
@@ -113,6 +115,41 @@ const server = http.createServer(async (req, res) => {
     if (authRequired) {
       user = getAuthUser(req);
       if (!user) return sendJSON(res, 401, { error: "Non authentifié." });
+    }
+
+    // ===== SETTINGS (compte) =====
+    if (url === '/api/me' && req.method === 'PUT') {
+      const body = await readBody(req);
+      if (body.companyName !== undefined) {
+        const updated = updateUserCompany(user.id, body.companyName);
+        return sendJSON(res, 200, { user: publicUser(updated) });
+      }
+      return sendJSON(res, 400, { error: "Rien à mettre à jour." });
+    }
+    if (url === '/api/me/password' && req.method === 'PUT') {
+      const body = await readBody(req);
+      const { currentPassword, newPassword } = body;
+      if (!verifyPassword(currentPassword || '', user.salt, user.password_hash)) {
+        return sendJSON(res, 401, { error: "Mot de passe actuel incorrect." });
+      }
+      if (!newPassword || newPassword.length < 8) {
+        return sendJSON(res, 400, { error: "Le nouveau mot de passe doit faire au moins 8 caractères." });
+      }
+      const { hash, salt } = hashPassword(newPassword);
+      updateUserPassword(user.id, hash, salt);
+      return sendJSON(res, 200, { updated: true });
+    }
+    if (url === '/api/me/export' && req.method === 'GET') {
+      const data = exportAllUserData(user.id);
+      return sendJSON(res, 200, { user: publicUser(user), ...data });
+    }
+    if (url === '/api/me' && req.method === 'DELETE') {
+      const body = await readBody(req);
+      if (!verifyPassword(body.password || '', user.salt, user.password_hash)) {
+        return sendJSON(res, 401, { error: "Mot de passe incorrect — suppression annulée." });
+      }
+      deleteUserAccount(user.id);
+      return sendJSON(res, 200, { deleted: true });
     }
 
     // ===== INVESTOR HUB (updates) =====
@@ -195,3 +232,4 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => console.log(`FoundrOS backend démarré → http://localhost:${PORT}`));
+
