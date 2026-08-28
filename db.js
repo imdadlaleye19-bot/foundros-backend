@@ -179,6 +179,35 @@ function createFeedback(userId, data) {
 function listFeedbackForUser(userId) { return db.prepare('SELECT * FROM feedback WHERE user_id = ? ORDER BY ts DESC').all(userId); }
 function deleteFeedback(userId, id) { return db.prepare('DELETE FROM feedback WHERE id = ? AND user_id = ?').run(id, userId).changes > 0; }
 
+// --- Gestion de compte (Settings) ---
+function updateUserPassword(userId, passwordHash, salt) {
+  db.prepare('UPDATE users SET password_hash = ?, salt = ? WHERE id = ?').run(passwordHash, salt, userId);
+}
+function updateUserCompany(userId, companyName) {
+  db.prepare('UPDATE users SET company_name = ? WHERE id = ?').run(companyName, userId);
+  return getUserById(userId);
+}
+function exportAllUserData(userId) {
+  return {
+    updates: listUpdatesForUser(userId),
+    expenses: listExpensesForUser(userId),
+    contracts: listContractsForUser(userId),
+    competitors: listCompetitorsForUser(userId),
+    feedback: listFeedbackForUser(userId),
+  };
+}
+function deleteUserAccount(userId) {
+  // Supprime toutes les données liées avant de supprimer le compte lui-même
+  const competitors = listCompetitorsForUser(userId);
+  competitors.forEach(c => db.prepare('DELETE FROM competitor_notes WHERE competitor_id = ? AND user_id = ?').run(c.id, userId));
+  db.prepare('DELETE FROM competitors WHERE user_id = ?').run(userId);
+  db.prepare('DELETE FROM feedback WHERE user_id = ?').run(userId);
+  db.prepare('DELETE FROM contracts WHERE user_id = ?').run(userId);
+  db.prepare('DELETE FROM expenses WHERE user_id = ?').run(userId);
+  db.prepare('DELETE FROM updates WHERE user_id = ?').run(userId);
+  db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+}
+
 module.exports = {
   db,
   createUser, getUserByEmail, getUserById,
@@ -187,4 +216,5 @@ module.exports = {
   createContract, listContractsForUser, deleteContract,
   createCompetitor, listCompetitorsForUser, deleteCompetitor, createCompetitorNote, listNotesForCompetitor,
   createFeedback, listFeedbackForUser, deleteFeedback,
+  updateUserPassword, updateUserCompany, exportAllUserData, deleteUserAccount,
 };
